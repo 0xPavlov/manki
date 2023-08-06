@@ -1,5 +1,8 @@
 mod installer;
-
+use eframe::{
+    epi::App,
+    run_native,
+}; 
 
 struct Logger {
     log: Vec<String>,
@@ -21,11 +24,21 @@ impl Logger {
     fn new() -> Logger {
         Logger { log: Vec::new(), }
     }
+
+    fn print_log(&mut self) {
+        self.log.iter().for_each(|item| println!("{}", item));
+    }
+}
+
+struct Test;
+
+impl App for Test {
+
 }
 
 fn main() {
     let mut logger = Logger::new();
     installer::setup(&mut logger);
-
-    logger.log.iter().for_each(|item| println!("{}", item));
+    logger.print_log();
+    run_native(app, native_options);
 }
