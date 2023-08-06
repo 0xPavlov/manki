@@ -1,8 +1,12 @@
 mod installer;
 use eframe::{
+    NativeOptions,
     epi::App,
     run_native,
-}; 
+    egui::CentralPanel,
+    egui::Context,
+    epi::Frame,
+};
 
 struct Logger {
     log: Vec<String>,
@@ -34,11 +38,21 @@ struct Test;
 
 impl App for Test {
 
-}
+    fn name(&self) -> &str {
+        return "Test";
+    }
 
+    fn update(&mut self, ctx: &Context, _frame: &Frame<>) { 
+        CentralPanel::default().show(ctx, |ui| {
+            ui.label("placeholder");
+        });
+    }
+}
 fn main() {
     let mut logger = Logger::new();
     installer::setup(&mut logger);
     logger.print_log();
-    run_native(app, native_options);
+    let app = Test;
+    let native_options = NativeOptions::default();
+    run_native(Box::new(app), native_options);
 }
