@@ -1,12 +1,22 @@
-mod installer;
+mod file_manager;
+mod deck;
 use eframe::{
+    egui::{
+        CentralPanel,
+        Context,
+        TextEdit,
+        Ui,
+        Button,
+    },
+    epi::{
+        App,
+        Frame,
+    },
     NativeOptions,
-    epi::App,
     run_native,
-    egui::CentralPanel,
-    egui::Context,
-    epi::Frame,
 };
+
+use crate::deck::Deck;
 
 struct Logger {
     log: Vec<String>,
@@ -28,31 +38,55 @@ impl Logger {
     fn new() -> Logger {
         Logger { log: Vec::new(), }
     }
+}
 
-    fn print_log(&mut self) {
-        self.log.iter().for_each(|item| println!("{}", item));
+pub enum State {
+    MAINSCREEN,
+    DECKSCREEN,
+}
+
+struct Manki {
+    state: State,
+    _decks: Vec<Deck>,
+
+}
+
+impl Manki {
+    fn default() -> Manki {
+        return Manki {state: State::MAINSCREEN, _decks: Vec::new()};
     }
 }
 
-struct Test;
-
-impl App for Test {
-
+impl App for Manki {
+    
     fn name(&self) -> &str {
-        return "Test";
+        return "Manki";
     }
 
-    fn update(&mut self, ctx: &Context, _frame: &Frame<>) { 
-        CentralPanel::default().show(ctx, |ui| {
-            ui.label("placeholder");
+    fn update(&mut self, ctx: &Context, _frame: &Frame<>) {
+        CentralPanel::default().show(ctx, |ui|{
+            match &self.state {
+                State::MAINSCREEN => {
+                    ui.label("MAINSCREEN");
+                    if ui.button("switch").clicked() {
+                        self.state = State::DECKSCREEN;
+                    }
+                }
+                State::DECKSCREEN => {
+                    render_deckscreen(ui);
+                }
+            }
         });
     }
 }
+
+fn render_deckscreen(ui: &mut Ui) {
+    ui.label("Deckscreen");
+}
+
+
 fn main() {
-    let mut logger = Logger::new();
-    installer::setup(&mut logger);
-    logger.print_log();
-    let app = Test;
-    let native_options = NativeOptions::default();
-    run_native(Box::new(app), native_options);
+    let app = Manki::default();
+    let options = NativeOptions::default();
+    run_native(Box::new(app), options);
 }

@@ -1,4 +1,4 @@
-
+use chrono::prelude::*;
 enum Evaluation {
     VeryGood,
     Good,
@@ -15,6 +15,23 @@ struct Card {
     last_eval: Evaluation,
 }
 
-struct Deck {
+pub(crate) struct Deck {
+    last_studied: DateTime<Local>,
     cards: Vec<Card>,
+}
+
+impl Deck {
+    fn new() -> Deck {
+        return Deck {
+            last_studied: Local::now(),
+            cards: Vec::new(),
+        }
+    }
+
+    fn from(crds: Vec<Card>, timestamp: DateTime<Local>) -> Deck {
+        return Deck {
+            last_studied: timestamp,
+            cards: crds,
+        }
+    }
 }
