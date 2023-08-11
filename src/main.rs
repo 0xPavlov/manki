@@ -85,8 +85,12 @@ fn render_deckscreen(ui: &mut Ui) {
 }
 
 
-fn main() {
-    let app = Manki::default();
-    let options = NativeOptions::default();
-    run_native(Box::new(app), options);
+fn main() { 
+    let mut d = deck::Deck::empty(&"Test");
+    let path = dirs::home_dir().unwrap().join("Manki");
+    d.save_to_json(path);
+
+    //let app = Manki::default();
+    //let options = NativeOptions::default();
+    //run_native(Box::new(app), options);
 }

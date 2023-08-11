@@ -59,5 +59,6 @@ impl App for Test {
 
         });
     }
+    }
 }
 

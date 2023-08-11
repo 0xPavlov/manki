@@ -1,4 +1,3 @@
-// Anything concering the installing is handeled here
 use std::fs::{
     metadata,
     create_dir,
@@ -14,8 +13,12 @@ struct Settings {
     home_directory: String,  
 }
 
+
+
+
 pub(crate) fn setup(logger: &mut Logger) {
 }
+
 
 pub(crate) fn is_directory(path: &PathBuf) -> bool {
     match metadata(path) {
@@ -27,6 +30,7 @@ pub(crate) fn is_directory(path: &PathBuf) -> bool {
         }
     }
 }
+
 
 pub(crate) fn is_file(path: PathBuf) -> bool {
     match metadata(path) {
