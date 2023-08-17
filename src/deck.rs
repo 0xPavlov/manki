@@ -8,9 +8,15 @@ use serde::{
     Serializer,
     Deserializer,
 };
-use std::io::Write;
+use std::error::Error;
+use std::io::{Write, Read};
 use std::path::PathBuf;
 use std::fs::File;
+
+use crate::{
+    file_manager,
+    logger::Logger,
+};
 
 #[derive(Serialize, Deserialize)]
 enum Evaluation {
@@ -25,19 +31,29 @@ enum Evaluation {
 }
 
 #[derive(Serialize, Deserialize)]
-struct Card {
-    index: usize,
+pub struct Card {
+    //index: usize,
     front: String,
     back: String,
 
     // Last Evaluation to determine the sorting for the next learning session
     last_eval: Evaluation,
 }
+
+impl Card {
+    pub(crate) fn from(frt: String, bck: String) -> Card {
+        return Card {
+            front: frt,
+            back: bck,
+            last_eval: Evaluation::VeryBad,
+        }
+    }
+}
          
 #[derive(Serialize, Deserialize)]
 pub(crate) struct Deck {
-    title: String,
-    category: String, 
+    pub title: String,
+    pub category: String, 
 
     #[serde(serialize_with = "serialize_naive_datetime", deserialize_with = "deserialize_naive_datetime")]
     last_studied: NaiveDateTime,
@@ -55,22 +71,23 @@ impl Deck {
         }
     }
 
-    pub(crate) fn save_to_json(&mut self, path: PathBuf) -> Result<(), String> {
-        let file_path = format!("{}/{}.json", path.to_str().unwrap(), self.title);
-        let serialized_deck =  match serde_json::to_string(self) {
-            Ok(string) => string,
-            Err(err) => return Err(format!("Could not serialize Deck due to {}", err)), 
-        };
+    pub(crate) fn save_to_json(&mut self) -> Result<(), Box<dyn Error>> {
+        // TODO: This file path is kinda ugly ngl
+        let file_path = format!("{}/{}.json", file_manager::decks_directory().to_str().unwrap(), self.title);
 
-        let mut file = match File::create(file_path) {
-            Ok(f) => f,
-            Err(err) => return Err(format!("Could not create file due to {}", err)),
-        };
 
-        match file.write_all(serialized_deck.as_bytes()) {
-            Ok(_) => return Ok(()),
-            Err(err) => return Err(format!("Could not write to file due to {}", err)),
-        }
+        let serialized_deck =  serde_json::to_string(self)?; 
+        let mut file = File::create(file_path)?;
+        file.write_all(serialized_deck.as_bytes())?;
+        Ok(())
+    }
+
+    pub(crate) fn read_from(path: &PathBuf, logger: &mut Logger) -> Result<Deck, Box<dyn Error>> {
+        let mut file = File::open(&path)?;
+        let mut file_contents = String::new();
+        file.read_to_string(&mut file_contents)?;
+
+        Ok(serde_json::from_str(&file_contents.as_str())?)
     }
 }
 

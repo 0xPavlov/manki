@@ -1,53 +1,44 @@
 use std::fs::{
-    metadata,
-    create_dir,
+    self,
 };
 use std::path::PathBuf;
-use crate::Logger;
+use dirs::home_dir;
 use serde::{Deserialize, Serialize};
-
-
+use std::io::{Error, ErrorKind};
 
 #[derive(Serialize, Deserialize)]
 struct Settings {
     home_directory: String,  
 }
 
-
-
-
-pub(crate) fn setup(logger: &mut Logger) {
+pub(crate) fn app_directory() -> PathBuf {
+    return home_dir().unwrap().join("Manki");
 }
 
+pub (crate) fn decks_directory() -> PathBuf {
+    return app_directory().join("decks");
+}
 
-pub(crate) fn is_directory(path: &PathBuf) -> bool {
-    match metadata(path) {
-        Ok(metadata) => {
-            return metadata.is_dir();
-        }
-        Err(_) => {
-            return false;
+pub(crate) fn list_files(directory_path: PathBuf) -> Result<Vec<PathBuf>, Error> {
+    if directory_path.is_file() {
+        return Err(Error::new(ErrorKind::InvalidInput, "Cannot retrieve files form a file!"));
+    }
+
+    let entries = fs::read_dir(directory_path).unwrap();
+    let mut files = Vec::new();
+
+    for entry in entries {
+        let entry = match entry {
+            Ok(e) => e,
+            Err(_) => continue,
+        };
+        let path = entry.path();
+             
+        if path.is_file() {
+            files.push(path);
         }
     }
+
+    return Ok(files);
 }
 
-
-pub(crate) fn is_file(path: PathBuf) -> bool {
-    match metadata(path) {
-        Ok(data) => {
-            return data.is_file();   
-        }
-        Err(_) => {
-            return false;
-        }
-    }
-}
-
-
-
-pub(crate) fn create_directory(path: &PathBuf, logger: &mut Logger) {
-    match create_dir(path) {
-        Ok(()) => logger.log_success(&format!("Created the Application-Folder!")),
-        Err(err) => logger.log_error(&format!("Could not create the Application-Folder at {} due to '{}'-error", path.to_str().unwrap(), err)),
-    }
-}

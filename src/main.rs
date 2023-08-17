@@ -1,10 +1,12 @@
 mod file_manager;
 mod deck;
+mod logger;
+mod icons;
+
 use eframe::{
     egui::{
         CentralPanel,
         Context,
-        TextEdit,
         Ui,
         Button,
     },
@@ -15,45 +17,28 @@ use eframe::{
     NativeOptions,
     run_native,
 };
-
+use icons::trash_can;
 use crate::deck::Deck;
-
-struct Logger {
-    log: Vec<String>,
-}
-
-impl Logger {
-    fn log_success(&mut self, to_add: &String) {
-        self.log.push("Success: ".to_owned() + to_add);
-    }
-
-    fn log_warning(&mut self, to_add: &String) {
-        self.log.push("Warning: ".to_owned() + to_add);
-    }
-
-    fn log_error(&mut self, to_add: &String) {
-        self.log.push("Error: ".to_owned() + to_add);
-    }
-
-    fn new() -> Logger {
-        Logger { log: Vec::new(), }
-    }
-}
+use crate::logger::Logger;
 
 pub enum State {
-    MAINSCREEN,
-    DECKSCREEN,
+    HOMESCREEN,
+    STUDYSCREEN,
 }
 
 struct Manki {
     state: State,
-    _decks: Vec<Deck>,
-
+    decks: Vec<Deck>,
+    logger: Logger,
 }
 
 impl Manki {
     fn default() -> Manki {
-        return Manki {state: State::MAINSCREEN, _decks: Vec::new()};
+        return Manki {
+            state: State::HOMESCREEN, 
+            decks: Vec::new(),
+            logger: Logger::new(),
+        };
     }
 }
 
@@ -66,31 +51,43 @@ impl App for Manki {
     fn update(&mut self, ctx: &Context, _frame: &Frame<>) {
         CentralPanel::default().show(ctx, |ui|{
             match &self.state {
-                State::MAINSCREEN => {
-                    ui.label("MAINSCREEN");
-                    if ui.button("switch").clicked() {
-                        self.state = State::DECKSCREEN;
-                    }
+                State::HOMESCREEN => {
+                    render_homescreen(ui, &mut self.logger);
                 }
-                State::DECKSCREEN => {
-                    render_deckscreen(ui);
+                State::STUDYSCREEN => {
+
                 }
             }
         });
     }
 }
 
-fn render_deckscreen(ui: &mut Ui) {
-    ui.label("Deckscreen");
+fn render_homescreen(ui: &mut Ui, mut logger: &mut Logger) {
+    let files =  match file_manager::list_files(file_manager::decks_directory()) {
+        Ok(f) => f,
+        Err(_) => Vec::new(),
+    };
+
+    let mut decks: Vec<Deck> = files.iter().map(|f| {
+        return match Deck::read_from(f, &mut logger) {
+            Ok(d) => d,
+            Err(_) => Deck::empty("Failed to Load"),
+        }
+    }).collect();
+
+    for i in 0..20 {
+        decks.push(Deck::empty(&i.to_string()));
+    }
+
+    for deck in decks {
+        ui.horizontal( |ui| {
+            ui.add_sized([100., 5.], Button::new(deck.title));
+        });
+    }
 }
 
-
-fn main() { 
-    let mut d = deck::Deck::empty(&"Test");
-    let path = dirs::home_dir().unwrap().join("Manki");
-    d.save_to_json(path);
-
-    //let app = Manki::default();
-    //let options = NativeOptions::default();
-    //run_native(Box::new(app), options);
+fn main() {
+    let app = Manki::default();
+    let options = NativeOptions::default();
+    run_native(Box::new(app), options);
 }
