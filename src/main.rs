@@ -7,7 +7,7 @@ mod logger;
 use crate::deck::Deck;
 use crate::logger::Logger;
 use eframe::{
-    egui::Context,
+    egui::{CentralPanel, Context},
     epi::{App, Frame},
     run_native, NativeOptions,
 };

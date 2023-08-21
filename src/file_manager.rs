@@ -22,12 +22,6 @@ pub(crate) fn log_path() -> PathBuf {
 }
 
 pub(crate) fn list_files(directory_path: PathBuf) -> Result<Vec<PathBuf>, Box<dyn Error>> {
-
-
-
-
-
-
     let entries = fs::read_dir(directory_path)?;
     let mut files = Vec::new();
 

@@ -1,4 +1,6 @@
-use crate::deck::Deck;
+use std::ffi::OsStr;
+use std::path::PathBuf;
+
 use crate::file_manager;
 use crate::logger::Logger;
 use eframe::egui::TopBottomPanel;
@@ -15,19 +17,23 @@ pub(crate) fn render_homescreen(ctx: &Context, _logger: &mut Logger) {
             Err(_) => Vec::new(),
         };
 
-        let decks: Vec<Deck> = files
+        let decks: Vec<(&str, &PathBuf)> = files
             .iter()
             .map(|f| {
-                return match Deck::read_from(f) {
-                    Ok(d) => d,
-                    Err(_) => Deck::empty("Failed to Load"),
-                };
+                (
+                    f.file_stem()
+                        .unwrap_or(OsStr::new("Invaild File"))
+                        .to_str()
+                        .unwrap(),
+                    f,
+                )
             })
             .collect();
 
         for deck in decks {
             ui.horizontal(|ui| {
-                ui.add_sized([500., 5.], Button::new(deck.title));
+                let button = Button::new(deck.0);
+                if ui.add_sized([500., 5.], button).clicked() {}
             });
         }
     });
