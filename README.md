@@ -1,4 +1,4 @@
-# manki
+# Manki
 
 Manki (short for "My Anki") is an Anki clone, written in Rust.
 

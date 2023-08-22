@@ -1,6 +1,7 @@
 mod deck;
 mod file_manager;
 mod gui;
+mod gui_util;
 mod icons;
 mod logger;
 
