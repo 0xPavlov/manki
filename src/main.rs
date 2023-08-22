@@ -42,7 +42,7 @@ impl App for Manki {
         frame.drag_window();
 
         match &self.state {
-            State::HOMESCREEN => gui::render_homescreen(ctx, &mut self.logger),
+            State::HOMESCREEN => gui::render_homescreen(ctx, self),
             State::STUDYSCREEN => {}
         }
     }
