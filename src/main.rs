@@ -7,8 +7,9 @@ mod logger;
 
 use crate::deck::Deck;
 use crate::logger::Logger;
+use deck::Card;
 use eframe::{
-    egui::{CentralPanel, Context},
+    egui::Context,
     epi::{App, Frame},
     run_native, NativeOptions,
 };
@@ -21,6 +22,7 @@ pub enum State {
 struct Manki {
     state: State,
     curr_deck: Deck, //current deck, either the one currently being studied, edited or created
+    index: usize,
     logger: Logger,
 }
 
@@ -29,6 +31,7 @@ impl Manki {
         return Manki {
             state: State::HOMESCREEN,
             curr_deck: Deck::empty("Empty"),
+            index: 0,
             logger: Logger::new(),
         };
     }
@@ -41,10 +44,9 @@ impl App for Manki {
 
     fn update(&mut self, ctx: &Context, frame: &Frame) {
         frame.drag_window();
-
         match &self.state {
             State::HOMESCREEN => gui::render_homescreen(ctx, self),
-            State::STUDYSCREEN => {}
+            State::STUDYSCREEN => gui::render_studyscreen(ctx, self),
         }
     }
 }

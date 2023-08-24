@@ -1,11 +1,11 @@
 use crate::{
-    deck::Deck,
+    deck::{Card, Deck},
     file_manager::{decks_directory, list_files},
     gui_util::DeckButton,
     Manki, State,
 };
-use eframe::egui::TopBottomPanel;
 use eframe::egui::{CentralPanel, Context};
+use eframe::egui::{Key, RichText, TopBottomPanel};
 
 pub(crate) fn render_homescreen(ctx: &Context, app: &mut Manki) {
     TopBottomPanel::top("top_panel").show(ctx, |ui| {
@@ -31,5 +31,19 @@ pub(crate) fn render_homescreen(ctx: &Context, app: &mut Manki) {
                 }
             });
         }
+    });
+}
+
+pub(crate) fn render_studyscreen(ctx: &Context, app: &mut Manki) {
+    let curr_card = app.curr_deck.get(app.index);
+
+    if ctx.input().key_pressed(Key::Space) {
+        curr_card.flip();
+    }
+
+    CentralPanel::default().show(ctx, |ui| {
+        ui.vertical_centered(|ui| {
+            ui.heading(RichText::new(curr_card.display_text()).size(15.));
+        });
     });
 }

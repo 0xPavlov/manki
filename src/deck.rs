@@ -7,7 +7,7 @@ use std::path::PathBuf;
 
 use crate::file_manager;
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 enum Evaluation {
     #[serde(rename = "VeryGood")]
     VeryGood,
@@ -19,23 +19,43 @@ enum Evaluation {
     VeryBad,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct Card {
-    //index: usize,
     front: String,
     back: String,
-
+    flipped: bool,
     // Last Evaluation to determine the sorting for the next learning session
     last_eval: Evaluation,
 }
 
 impl Card {
-    pub(crate) fn from(frt: String, bck: String) -> Card {
+    pub(crate) fn new(frt: String, bck: String) -> Card {
         return Card {
             front: frt,
             back: bck,
+            flipped: false,
             last_eval: Evaluation::VeryBad,
         };
+    }
+
+    pub(crate) fn empty() -> Card {
+        return Card {
+            front: String::from(""),
+            back: String::from(""),
+            flipped: false,
+            last_eval: Evaluation::VeryBad,
+        };
+    }
+
+    pub(crate) fn display_text(&self) -> &String {
+        if self.flipped {
+            return &self.back;
+        }
+        return &self.front;
+    }
+
+    pub(crate) fn flip(&mut self) {
+        self.flipped = !self.flipped;
     }
 }
 
@@ -83,6 +103,20 @@ impl Deck {
         file.read_to_string(&mut file_contents)?;
 
         Ok(serde_json::from_str(&file_contents.as_str())?)
+    }
+
+    pub(crate) fn add_card(&mut self, c: Card) {
+        self.cards.push(c);
+    }
+
+    pub(crate) fn _sort() {}
+
+    pub(crate) fn _len(&self) -> usize {
+        self.cards.len()
+    }
+
+    pub(crate) fn get(&mut self, index: usize) -> &mut Card {
+        self.cards.get_mut(index).unwrap()
     }
 }
 
