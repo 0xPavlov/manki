@@ -27,6 +27,7 @@ pub(crate) fn render_homescreen(ctx: &Context, app: &mut Manki) {
             ui.horizontal(|ui| {
                 if ui.add_sized([500., 5.], deck.button).clicked() {
                     app.curr_deck = Deck::read_from(&deck.path).unwrap();
+                    app.curr_deck.sort();
                     app.state = State::STUDYSCREEN;
                 }
             });
@@ -39,7 +40,7 @@ pub(crate) fn render_studyscreen(ctx: &Context, app: &mut Manki) {
 
     if curr_card_opt.is_none() {
         app.index = 0;
-        app.curr_deck.save_to_json();
+        let _ = app.curr_deck.save_to_json();
         app.state = State::HOMESCREEN;
         return;
     }

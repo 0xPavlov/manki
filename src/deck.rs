@@ -7,19 +7,19 @@ use std::path::PathBuf;
 
 use crate::file_manager;
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, PartialEq, PartialOrd, Ord, Eq)]
 pub enum Evaluation {
     #[serde(rename = "VeryGood")]
-    VeryGood,
+    VeryGood = 4,
     #[serde(rename = "Good")]
-    Good,
+    Good = 3,
     #[serde(rename = "Bad")]
-    Bad,
+    Bad = 2,
     #[serde(rename = "VeryBad")]
-    VeryBad,
+    VeryBad = 1,
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Ord, Eq, PartialEq, PartialOrd)]
 pub struct Card {
     front: String,
     back: String,
@@ -113,7 +113,9 @@ impl Deck {
         self.cards.push(c);
     }
 
-    pub(crate) fn _sort() {}
+    pub(crate) fn sort(&mut self) {
+        self.cards.sort_by(|a, b| a.last_eval.cmp(&b.last_eval))
+    }
 
     pub(crate) fn _len(&self) -> usize {
         self.cards.len()
