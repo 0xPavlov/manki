@@ -5,6 +5,11 @@ use std::ffi::OsStr;
 use std::fs::{self};
 use std::path::PathBuf;
 
+// More potentially important settings
+// Font-Size (for questions etc)
+// Base Color
+// installation dest
+
 #[derive(Serialize, Deserialize)]
 struct Settings {
     home_directory: String,

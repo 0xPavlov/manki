@@ -1,8 +1,7 @@
 use crate::{
-    deck::{Card, Deck},
     file_manager::{decks_directory, list_files},
     gui_util::DeckButton,
-    Manki, State,
+    Deck, Manki, State,
 };
 use eframe::egui::{CentralPanel, Context};
 use eframe::egui::{Key, RichText, TopBottomPanel};
@@ -43,7 +42,7 @@ pub(crate) fn render_studyscreen(ctx: &Context, app: &mut Manki) {
 
     CentralPanel::default().show(ctx, |ui| {
         ui.vertical_centered(|ui| {
-            ui.heading(RichText::new(curr_card.display_text()).size(15.));
+            ui.heading(RichText::new(curr_card.display_text()).size(30.));
         });
     });
 }

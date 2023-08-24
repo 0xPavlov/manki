@@ -1,3 +1,3 @@
-pub fn trash_can() -> &'static str {
+pub fn _trash_can() -> &'static str {
     return "🗑";
 }

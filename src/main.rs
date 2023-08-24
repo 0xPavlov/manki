@@ -7,7 +7,6 @@ mod logger;
 
 use crate::deck::Deck;
 use crate::logger::Logger;
-use deck::Card;
 use eframe::{
     egui::Context,
     epi::{App, Frame},
@@ -23,7 +22,7 @@ struct Manki {
     state: State,
     curr_deck: Deck, //current deck, either the one currently being studied, edited or created
     index: usize,
-    logger: Logger,
+    _logger: Logger,
 }
 
 impl Manki {
@@ -32,7 +31,7 @@ impl Manki {
             state: State::HOMESCREEN,
             curr_deck: Deck::empty("Empty"),
             index: 0,
-            logger: Logger::new(),
+            _logger: Logger::new(),
         };
     }
 }

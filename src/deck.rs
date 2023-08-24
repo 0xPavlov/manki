@@ -29,7 +29,7 @@ pub struct Card {
 }
 
 impl Card {
-    pub(crate) fn new(frt: String, bck: String) -> Card {
+    pub(crate) fn _new(frt: String, bck: String) -> Card {
         return Card {
             front: frt,
             back: bck,
@@ -38,7 +38,7 @@ impl Card {
         };
     }
 
-    pub(crate) fn empty() -> Card {
+    pub(crate) fn _empty() -> Card {
         return Card {
             front: String::from(""),
             back: String::from(""),
@@ -83,7 +83,7 @@ impl Deck {
         };
     }
 
-    pub(crate) fn save_to_json(&mut self) -> Result<(), Box<dyn Error>> {
+    pub(crate) fn _save_to_json(&mut self) -> Result<(), Box<dyn Error>> {
         // TODO: This file path is kinda ugly ngl
         let file_path = format!(
             "{}/{}.json",
@@ -105,7 +105,7 @@ impl Deck {
         Ok(serde_json::from_str(&file_contents.as_str())?)
     }
 
-    pub(crate) fn add_card(&mut self, c: Card) {
+    pub(crate) fn _add_card(&mut self, c: Card) {
         self.cards.push(c);
     }
 
