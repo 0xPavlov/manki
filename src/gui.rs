@@ -1,9 +1,10 @@
 use crate::{
+    deck::{Card, Evaluation},
     file_manager::{decks_directory, list_files},
     gui_util::DeckButton,
     Deck, Manki, State,
 };
-use eframe::egui::{CentralPanel, Context};
+use eframe::egui::{CentralPanel, Context, Layout};
 use eframe::egui::{Key, RichText, TopBottomPanel};
 
 pub(crate) fn render_homescreen(ctx: &Context, app: &mut Manki) {
@@ -34,7 +35,15 @@ pub(crate) fn render_homescreen(ctx: &Context, app: &mut Manki) {
 }
 
 pub(crate) fn render_studyscreen(ctx: &Context, app: &mut Manki) {
-    let curr_card = app.curr_deck.get(app.index);
+    let curr_card_opt = app.curr_deck.get(app.index);
+
+    if curr_card_opt.is_none() {
+        app.index = 0;
+        app.curr_deck.save_to_json();
+        app.state = State::HOMESCREEN;
+        return;
+    }
+    let curr_card = curr_card_opt.unwrap();
 
     if ctx.input().key_pressed(Key::Space) {
         curr_card.flip();
@@ -43,6 +52,27 @@ pub(crate) fn render_studyscreen(ctx: &Context, app: &mut Manki) {
     CentralPanel::default().show(ctx, |ui| {
         ui.vertical_centered(|ui| {
             ui.heading(RichText::new(curr_card.display_text()).size(30.));
+        });
+    });
+
+    TopBottomPanel::bottom("bootom_panel").show(ctx, |ui| {
+        ui.with_layout(Layout::left_to_right(), |ui| {
+            if ui.button("Very Bad").clicked() {
+                curr_card.update_eval(Evaluation::VeryBad);
+                app.index += 1;
+            }
+            if ui.button("Bad").clicked() {
+                curr_card.update_eval(Evaluation::Bad);
+                app.index += 1;
+            }
+            if ui.button("Good").clicked() {
+                curr_card.update_eval(Evaluation::Good);
+                app.index += 1;
+            }
+            if ui.button("Very Good").clicked() {
+                curr_card.update_eval(Evaluation::VeryGood);
+                app.index += 1;
+            }
         });
     });
 }

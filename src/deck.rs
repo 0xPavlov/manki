@@ -8,7 +8,7 @@ use std::path::PathBuf;
 use crate::file_manager;
 
 #[derive(Serialize, Deserialize, Clone)]
-enum Evaluation {
+pub enum Evaluation {
     #[serde(rename = "VeryGood")]
     VeryGood,
     #[serde(rename = "Good")]
@@ -38,7 +38,7 @@ impl Card {
         };
     }
 
-    pub(crate) fn _empty() -> Card {
+    pub(crate) fn empty() -> Card {
         return Card {
             front: String::from(""),
             back: String::from(""),
@@ -56,6 +56,10 @@ impl Card {
 
     pub(crate) fn flip(&mut self) {
         self.flipped = !self.flipped;
+    }
+
+    pub(crate) fn update_eval(&mut self, eval: Evaluation) {
+        self.last_eval = eval;
     }
 }
 
@@ -83,7 +87,7 @@ impl Deck {
         };
     }
 
-    pub(crate) fn _save_to_json(&mut self) -> Result<(), Box<dyn Error>> {
+    pub(crate) fn save_to_json(&mut self) -> Result<(), Box<dyn Error>> {
         // TODO: This file path is kinda ugly ngl
         let file_path = format!(
             "{}/{}.json",
@@ -115,8 +119,8 @@ impl Deck {
         self.cards.len()
     }
 
-    pub(crate) fn get(&mut self, index: usize) -> &mut Card {
-        self.cards.get_mut(index).unwrap()
+    pub(crate) fn get(&mut self, index: usize) -> Option<&mut Card> {
+        self.cards.get_mut(index)
     }
 }
 
