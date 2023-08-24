@@ -94,7 +94,7 @@ impl Deck {
             file_manager::decks_directory().to_str().unwrap(),
             self.title
         );
-
+        self.last_studied = Local::now().naive_local();
         let serialized_deck = serde_json::to_string(self)?;
         let mut file = File::create(file_path)?;
         file.write_all(serialized_deck.as_bytes())?;
