@@ -1,11 +1,12 @@
 use crate::{
-    deck::{Card, Evaluation},
+    deck::Evaluation,
     file_manager::{decks_directory, list_files},
     gui_util::DeckButton,
     Deck, Manki, State,
 };
-use eframe::egui::{CentralPanel, Context, Layout};
-use eframe::egui::{Key, RichText, TopBottomPanel};
+use eframe::egui::{Button, CentralPanel, Context};
+use eframe::egui::{RichText, TopBottomPanel};
+use egui::Key;
 
 pub(crate) fn render_homescreen(ctx: &Context, app: &mut Manki) {
     TopBottomPanel::top("top_panel").show(ctx, |ui| {
@@ -46,9 +47,11 @@ pub(crate) fn render_studyscreen(ctx: &Context, app: &mut Manki) {
     }
     let curr_card = curr_card_opt.unwrap();
 
-    if ctx.input().key_pressed(Key::Space) {
-        curr_card.flip();
-    }
+    ctx.input(|input| {
+        if input.key_pressed(Key::Space) {
+            curr_card.flip();
+        }
+    });
 
     CentralPanel::default().show(ctx, |ui| {
         ui.vertical_centered(|ui| {
@@ -57,23 +60,36 @@ pub(crate) fn render_studyscreen(ctx: &Context, app: &mut Manki) {
     });
 
     TopBottomPanel::bottom("bootom_panel").show(ctx, |ui| {
-        ui.with_layout(Layout::left_to_right(), |ui| {
-            if ui.button("Very Bad").clicked() {
-                curr_card.update_eval(Evaluation::VeryBad);
-                app.index += 1;
-            }
-            if ui.button("Bad").clicked() {
-                curr_card.update_eval(Evaluation::Bad);
-                app.index += 1;
-            }
-            if ui.button("Good").clicked() {
-                curr_card.update_eval(Evaluation::Good);
-                app.index += 1;
-            }
-            if ui.button("Very Good").clicked() {
-                curr_card.update_eval(Evaluation::VeryGood);
-                app.index += 1;
-            }
+        //horizontal centering is quite hard in eframe:.egui so this is a workaround
+
+        ui.columns(4, |columns| {
+            columns[0].vertical_centered(|ui| {
+                if ui.add_sized([200., 5.], Button::new("Very Bad")).clicked() {
+                    curr_card.update_eval(Evaluation::VeryBad);
+                    app.index += 1;
+                }
+            });
+
+            columns[1].vertical_centered(|ui| {
+                if ui.add_sized([200., 5.], Button::new("Bad")).clicked() {
+                    curr_card.update_eval(Evaluation::Bad);
+                    app.index += 1;
+                }
+            });
+
+            columns[2].vertical_centered(|ui| {
+                if ui.add_sized([200., 5.], Button::new("Good")).clicked() {
+                    curr_card.update_eval(Evaluation::Good);
+                    app.index += 1;
+                }
+            });
+
+            columns[3].vertical_centered(|ui| {
+                if ui.add_sized([200., 5.], Button::new("Very Good")).clicked() {
+                    curr_card.update_eval(Evaluation::VeryGood);
+                    app.index += 1;
+                }
+            });
         });
     });
 }

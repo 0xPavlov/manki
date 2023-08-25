@@ -38,15 +38,6 @@ impl Card {
         };
     }
 
-    pub(crate) fn empty() -> Card {
-        return Card {
-            front: String::from(""),
-            back: String::from(""),
-            flipped: false,
-            last_eval: Evaluation::VeryBad,
-        };
-    }
-
     pub(crate) fn display_text(&self) -> &String {
         if self.flipped {
             return &self.back;

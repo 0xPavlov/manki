@@ -7,11 +7,8 @@ mod logger;
 
 use crate::deck::Deck;
 use crate::logger::Logger;
-use eframe::{
-    egui::Context,
-    epi::{App, Frame},
-    run_native, NativeOptions,
-};
+use eframe::{run_native, App, CreationContext, Frame, NativeOptions};
+use egui::Context;
 
 pub enum State {
     HOMESCREEN,
@@ -26,7 +23,7 @@ struct Manki {
 }
 
 impl Manki {
-    fn default() -> Manki {
+    fn default(_cc: &CreationContext<'_>) -> Manki {
         return Manki {
             state: State::HOMESCREEN,
             curr_deck: Deck::empty("Empty"),
@@ -37,12 +34,9 @@ impl Manki {
 }
 
 impl App for Manki {
-    fn name(&self) -> &str {
-        return "Manki";
-    }
+    fn update(&mut self, ctx: &Context, frame: &mut Frame) {
+        frame.info().window_info;
 
-    fn update(&mut self, ctx: &Context, frame: &Frame) {
-        frame.drag_window();
         match &self.state {
             State::HOMESCREEN => gui::render_homescreen(ctx, self),
             State::STUDYSCREEN => gui::render_studyscreen(ctx, self),
@@ -50,8 +44,11 @@ impl App for Manki {
     }
 }
 
-fn main() {
-    let app = Manki::default();
-    let options = NativeOptions::default();
-    run_native(Box::new(app), options);
+fn main() -> eframe::Result<()> {
+    let native_options = NativeOptions::default();
+    run_native(
+        "Manki",
+        native_options,
+        Box::new(|cc| Box::new(Manki::default(cc))),
+    )
 }
