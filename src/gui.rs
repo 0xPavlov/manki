@@ -11,9 +11,6 @@ use egui::Key;
 pub(crate) fn render_homescreen(ctx: &Context, app: &mut Manki) {
     TopBottomPanel::top("top_panel").show(ctx, |ui| {
         ui.label("Lorem ipsum dolor sit amet, qui minim labore adipisicing minim sint cillum sint consectetur cupidatat.");
-        ui.label("Lorem ipsum dolor sit amet, qui minim labore adipisicing minim sint cillum sint consectetur cupidatat.");
-        ui.label("Lorem ipsum dolor sit amet, qui minim labore adipisicing minim sint cillum sint consectetur cupidatat.");
-        ui.label("Lorem ipsum dolor sit amet, qui minim labore adipisicing minim sint cillum sint consectetur cupidatat.");
     });
 
     CentralPanel::default().show(ctx, |ui| {
@@ -66,11 +63,7 @@ pub(crate) fn render_studyscreen(ctx: &Context, app: &mut Manki) {
     });
 
     CentralPanel::default().show(ctx, |ui| {
-        ui.label("Lorem ipsum dolor sit amet, qui minim labore adipisicing minim sint cillum sint consectetur cupidatat.");
-        ui.label("Lorem ipsum dolor sit amet, qui minim labore adipisicing minim sint cillum sint consectetur cupidatat.");
-        ui.label("Lorem ipsum dolor sit amet, qui minim labore adipisicing minim sint cillum sint consectetur cupidatat.");
-        ui.label("Lorem ipsum dolor sit amet, qui minim labore adipisicing minim sint cillum sint consectetur cupidatat.");
-        ui.label("Lorem ipsum dolor sit amet, qui minim labore adipisicing minim sint cillum sint consectetur cupidatat.");
+        ui.label(content.1);
     });
 
     TopBottomPanel::bottom("bootom_panel").show(ctx, |ui| {
