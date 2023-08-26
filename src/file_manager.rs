@@ -12,7 +12,9 @@ use std::path::PathBuf;
 
 #[derive(Serialize, Deserialize)]
 struct Settings {
-    home_directory: String,
+    app_directory: String,
+    text_size: f32, // this is the size for the questions/answers of the cards
+    answer_button_height: f32,
 }
 
 pub(crate) fn app_directory() -> PathBuf {

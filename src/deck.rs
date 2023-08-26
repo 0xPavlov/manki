@@ -19,30 +19,39 @@ pub enum Evaluation {
     VeryBad = 1,
 }
 
-#[derive(Serialize, Deserialize, Clone, Ord, Eq, PartialEq, PartialOrd)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct Card {
-    front: String,
-    back: String,
+    front_heading: String,
+    back_heading: String,
+    front_body: String,
+    back_body: String,
     flipped: bool,
     // Last Evaluation to determine the sorting for the next learning session
     last_eval: Evaluation,
 }
 
 impl Card {
-    pub(crate) fn _new(frt: String, bck: String) -> Card {
+    pub(crate) fn _new(
+        frt_head: String,
+        bck_head: String,
+        frt_body: String,
+        bck_body: String,
+    ) -> Card {
         return Card {
-            front: frt,
-            back: bck,
+            front_heading: frt_head,
+            back_heading: bck_head,
+            front_body: frt_body,
+            back_body: bck_body,
             flipped: false,
             last_eval: Evaluation::VeryBad,
         };
     }
 
-    pub(crate) fn display_text(&self) -> &String {
+    pub(crate) fn display_text(&self) -> (&String, &String) {
         if self.flipped {
-            return &self.back;
+            return (&self.back_heading, &self.back_body);
         }
-        return &self.front;
+        return (&self.front_heading, &self.back_body);
     }
 
     pub(crate) fn flip(&mut self) {
