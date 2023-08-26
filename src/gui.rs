@@ -66,7 +66,7 @@ pub(crate) fn render_studyscreen(ctx: &Context, app: &mut Manki) {
         ui.label(content.1);
     });
 
-    TopBottomPanel::bottom("bootom_panel").show(ctx, |ui| {
+    TopBottomPanel::bottom("bottom_panel").show(ctx, |ui| {
         //horizontal centering is quite hard in egui so this is a workaround
 
         let width = app.window_width;
