@@ -1,8 +1,8 @@
 use std::any::Any;
 
 use chrono::NaiveDateTime;
-use egui::{Image, Label, TextEdit};
-use serde::{Deserialize, Deserializer, Serializer};
+use egui::{Image, Label, RichText, TextEdit};
+use serde::{ser::SerializeMap, Deserialize, Deserializer, Serializer};
 
 pub(crate) fn serialize_naive_datetime<S>(
     datetime: &NaiveDateTime,
@@ -29,15 +29,20 @@ pub(crate) fn serialize_widgets<S>(
     serializer: S,
 ) -> Result<S::Ok, S::Error>
 where
-    S: Serializer<Ok = ()>,
+    S: Serializer,
 {
+    let mut map = serializer.serialize_map(Some(widgets.len()))?;
+
     for widget in widgets {
         if let Some(label) = widget.downcast_ref::<Label>() {
+            map.serialize_entry("Label", label.text())?;
         } else if let Some(image) = widget.downcast_ref::<Image>() {
-        } else if let Some(code_block) = widget.downcast_ref::<TextEdit>() {
+            unimplemented!()
+        } else if let Some(code_block) = widget.downcast_ref::<RichText>() {
+            map.serialize_entry("Code Block", code_block.text())?;
         } else {
             unimplemented!();
         }
     }
-    Ok(())
+    map.end()
 }
