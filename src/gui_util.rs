@@ -30,13 +30,12 @@ impl DeckButton {
 }
 
 struct ImageWrapper {
-    path: PathBuf,
-    image: Image,
+    pub path: PathBuf,
+    pub image: Image,
 }
 
 // All the Widgets that are usable in Manki
 pub enum WidgetWrapper {
     Label(Label),
-    Button(Button),
     Image(ImageWrapper),
 }

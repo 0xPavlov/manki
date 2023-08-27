@@ -1,6 +1,6 @@
 use crate::file_manager;
 use crate::gui_util::WidgetWrapper;
-use crate::serde_util::{deserialize_naive_datetime, serialize_naive_datetime};
+use crate::serde_util::{deserialize_naive_datetime, serialize_naive_datetime, serialize_widgets};
 use chrono::{Local, NaiveDateTime};
 use serde::{Deserialize, Serialize};
 use std::any::Any;
@@ -27,8 +27,10 @@ pub struct Card {
     front_heading: String,
     back_heading: String,
 
-    // The Body of a Card needs be able to handle more complex compositions of Widgets
+    #[serde(serialize_with = "serialize_widgets")]
     front_body: Vec<WidgetWrapper>,
+
+    #[serde(serialize_with = "serialize_widgets")]
     back_body: Vec<WidgetWrapper>,
 
     flipped: bool,
