@@ -1,8 +1,7 @@
 use crate::file_manager;
 use crate::serde_util::{deserialize_naive_datetime, serialize_naive_datetime};
 use chrono::{Local, NaiveDateTime};
-use egui::{Image, Widget};
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use serde::{Deserialize, Serialize};
 use std::error::Error;
 use std::fs::File;
 use std::io::{Read, Write};
@@ -29,8 +28,9 @@ pub struct Card {
     front_body: String,
     back_body: String,
 
-    back_body_vec: Vec<Box<dyn Widget>>,
+    //back_body_vec: Vec<Box<dyn Widget>>,
     flipped: bool,
+
     // Last Evaluation to determine the sorting for the next learning session
     last_eval: Evaluation,
 }
@@ -98,16 +98,8 @@ impl Deck {
         Ok(serde_json::from_str(&file_contents.as_str())?)
     }
 
-    pub(crate) fn _add_card(&mut self, c: Card) {
-        self.cards.push(c);
-    }
-
     pub(crate) fn sort(&mut self) {
         self.cards.sort_by(|a, b| a.last_eval.cmp(&b.last_eval))
-    }
-
-    pub(crate) fn _len(&self) -> usize {
-        self.cards.len()
     }
 
     pub(crate) fn get(&mut self, index: usize) -> Option<&mut Card> {
