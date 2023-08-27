@@ -31,22 +31,6 @@ pub struct Card {
 }
 
 impl Card {
-    pub(crate) fn _new(
-        frt_head: String,
-        bck_head: String,
-        frt_body: String,
-        bck_body: String,
-    ) -> Card {
-        return Card {
-            front_heading: frt_head,
-            back_heading: bck_head,
-            front_body: frt_body,
-            back_body: bck_body,
-            flipped: false,
-            last_eval: Evaluation::VeryBad,
-        };
-    }
-
     pub(crate) fn display_text(&self) -> (&String, &String) {
         if self.flipped {
             return (&self.back_heading, &self.back_body);

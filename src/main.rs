@@ -13,6 +13,7 @@ use egui::Context;
 pub enum State {
     HOMESCREEN,
     STUDYSCREEN,
+    EDITSCREEN,
 }
 
 struct Manki {
@@ -47,6 +48,7 @@ impl App for Manki {
         match &self.state {
             State::HOMESCREEN => gui::render_homescreen(ctx, self),
             State::STUDYSCREEN => gui::render_studyscreen(ctx, self),
+            State::EDITSCREEN => {}
         }
     }
 }

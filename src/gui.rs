@@ -6,11 +6,16 @@ use crate::{
 };
 use eframe::egui::{Button, CentralPanel, Context};
 use eframe::egui::{RichText, TopBottomPanel};
-use egui::Key;
+use egui::{Key, ScrollArea};
 
 pub(crate) fn render_homescreen(ctx: &Context, app: &mut Manki) {
     TopBottomPanel::top("top_panel").show(ctx, |ui| {
-        ui.label("Lorem ipsum dolor sit amet, qui minim labore adipisicing minim sint cillum sint consectetur cupidatat.");
+        ui.horizontal(|ui| {
+            if ui.button("New Deck").clicked() {
+                app.state = State::EDITSCREEN;
+                app.curr_deck = Deck::empty("");
+            }
+        });
     });
 
     CentralPanel::default().show(ctx, |ui| {
@@ -21,15 +26,19 @@ pub(crate) fn render_homescreen(ctx: &Context, app: &mut Manki) {
 
         let decks: Vec<DeckButton> = DeckButton::paths_to_buttons(files);
 
-        for deck in decks {
-            ui.horizontal(|ui| {
-                if ui.add_sized([500., 5.], deck.button).clicked() {
-                    app.curr_deck = Deck::read_from(&deck.path).unwrap();
-                    app.curr_deck.sort();
-                    app.state = State::STUDYSCREEN;
+        ScrollArea::vertical()
+            .scroll_bar_visibility(egui::scroll_area::ScrollBarVisibility::AlwaysHidden)
+            .show(ui, |ui| {
+                for deck in decks {
+                    ui.horizontal(|ui| {
+                        if ui.add_sized([app.window_width, 5.], deck.button).clicked() {
+                            app.curr_deck = Deck::read_from(&deck.path).unwrap();
+                            app.curr_deck.sort();
+                            app.state = State::STUDYSCREEN;
+                        }
+                    });
                 }
             });
-        }
     });
 
     TopBottomPanel::bottom("bottom_panel").show(ctx, |ui| {
