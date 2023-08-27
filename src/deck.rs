@@ -2,6 +2,7 @@ use crate::file_manager;
 use crate::serde_util::{deserialize_naive_datetime, serialize_naive_datetime};
 use chrono::{Local, NaiveDateTime};
 use serde::{Deserialize, Serialize};
+use std::any::Any;
 use std::error::Error;
 use std::fs::File;
 use std::io::{Read, Write};
@@ -25,10 +26,10 @@ pub struct Card {
     front_heading: String,
     back_heading: String,
 
-    front_body: String,
-    back_body: String,
+    // The Body of a Card needs be able to handle more complex compositions of Widgets
+    front_body: Vec<Box<dyn Any>>,
+    back_body: Vec<Box<dyn Any>>,
 
-    //back_body_vec: Vec<Box<dyn Widget>>,
     flipped: bool,
 
     // Last Evaluation to determine the sorting for the next learning session
@@ -38,9 +39,9 @@ pub struct Card {
 impl Card {
     pub(crate) fn display_text(&self) -> (&String, &String) {
         if self.flipped {
-            return (&self.back_heading, &self.back_body);
+            return (&self.back_heading, &self.back_heading);
         }
-        return (&self.front_heading, &self.back_body);
+        return (&self.front_heading, &self.front_heading);
     }
 
     pub(crate) fn flip(&mut self) {
