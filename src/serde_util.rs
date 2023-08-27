@@ -1,8 +1,10 @@
 use std::any::Any;
 
 use chrono::NaiveDateTime;
-use egui::{Image, Label, RichText, TextEdit};
+use egui::{Button, Image, Label, RichText, TextEdit};
 use serde::{ser::SerializeMap, Deserialize, Deserializer, Serializer};
+
+use crate::gui_util::WidgetWrapper;
 
 pub(crate) fn serialize_naive_datetime<S>(
     datetime: &NaiveDateTime,
@@ -24,7 +26,7 @@ where
         .map_err(serde::de::Error::custom);
 }
 
-pub(crate) fn serialize_widgets<S>(
+pub(crate) fn __serialize_widgets<S>(
     widgets: &Vec<Box<dyn Any>>,
     serializer: S,
 ) -> Result<S::Ok, S::Error>
@@ -44,5 +46,25 @@ where
             unimplemented!();
         }
     }
+    map.end()
+}
+
+pub(crate) fn serialize_widgets<S>(
+    widgets: &Vec<WidgetWrapper>,
+    serializer: S,
+) -> Result<S::Ok, S::Error>
+where
+    S: Serializer,
+{
+    let mut map = serializer.serialize_map(Some(widgets.len()))?;
+
+    for widget in widgets {
+        match widget {
+            WidgetWrapper::Button(button) => {}
+            WidgetWrapper::Label(label) => {}
+            WidgetWrapper::Image(image) => {}
+        }
+    }
+
     map.end()
 }

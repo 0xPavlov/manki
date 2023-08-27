@@ -1,5 +1,6 @@
 use crate::file_manager::file_name;
 use eframe::egui::Button;
+use egui::{Image, Label};
 use std::path::PathBuf;
 
 pub(crate) struct DeckButton {
@@ -26,4 +27,16 @@ impl DeckButton {
             })
             .collect();
     }
+}
+
+struct ImageWrapper {
+    path: PathBuf,
+    image: Image,
+}
+
+// All the Widgets that are usable in Manki
+pub enum WidgetWrapper {
+    Label(Label),
+    Button(Button),
+    Image(ImageWrapper),
 }
