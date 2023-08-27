@@ -1,3 +1,5 @@
+use crate::file_manager;
+use crate::serde_util::{deserialize_naive_datetime, serialize_naive_datetime};
 use chrono::{Local, NaiveDateTime};
 use egui::{Image, Widget};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
@@ -5,8 +7,6 @@ use std::error::Error;
 use std::fs::File;
 use std::io::{Read, Write};
 use std::path::PathBuf;
-
-use crate::file_manager;
 
 #[derive(Serialize, Deserialize, Clone, PartialEq, PartialOrd, Ord, Eq)]
 pub enum Evaluation {
@@ -113,21 +113,4 @@ impl Deck {
     pub(crate) fn get(&mut self, index: usize) -> Option<&mut Card> {
         self.cards.get_mut(index)
     }
-}
-
-fn serialize_naive_datetime<S>(datetime: &NaiveDateTime, serializer: S) -> Result<S::Ok, S::Error>
-where
-    S: Serializer,
-{
-    let formatted_datetime = datetime.format("%Y-%m-%d %H:%M:%S").to_string();
-    return serializer.serialize_str(&formatted_datetime);
-}
-
-fn deserialize_naive_datetime<'de, D>(deserializer: D) -> Result<NaiveDateTime, D::Error>
-where
-    D: Deserializer<'de>,
-{
-    let datetime_str = String::deserialize(deserializer)?;
-    return NaiveDateTime::parse_from_str(&datetime_str, "%Y-%m-%d %H:%M:%S")
-        .map_err(serde::de::Error::custom);
 }

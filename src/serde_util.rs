@@ -1,4 +1,10 @@
-fn serialize_naive_datetime<S>(datetime: &NaiveDateTime, serializer: S) -> Result<S::Ok, S::Error>
+use chrono::NaiveDateTime;
+use serde::{Deserialize, Deserializer, Serializer};
+
+pub(crate) fn serialize_naive_datetime<S>(
+    datetime: &NaiveDateTime,
+    serializer: S,
+) -> Result<S::Ok, S::Error>
 where
     S: Serializer,
 {
@@ -6,7 +12,7 @@ where
     return serializer.serialize_str(&formatted_datetime);
 }
 
-fn deserialize_naive_datetime<'de, D>(deserializer: D) -> Result<NaiveDateTime, D::Error>
+pub(crate) fn deserialize_naive_datetime<'de, D>(deserializer: D) -> Result<NaiveDateTime, D::Error>
 where
     D: Deserializer<'de>,
 {
