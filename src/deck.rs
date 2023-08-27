@@ -1,4 +1,5 @@
 use chrono::{Local, NaiveDateTime};
+use egui::{Image, Widget};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::error::Error;
 use std::fs::File;
@@ -19,12 +20,16 @@ pub enum Evaluation {
     VeryBad = 1,
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize)]
 pub struct Card {
+    // Headings are rendered at the top of the screen and are meant to be the field for the question
     front_heading: String,
     back_heading: String,
+
     front_body: String,
     back_body: String,
+
+    back_body_vec: Vec<Box<dyn Widget>>,
     flipped: bool,
     // Last Evaluation to determine the sorting for the next learning session
     last_eval: Evaluation,

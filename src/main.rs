@@ -4,6 +4,7 @@ mod gui;
 mod gui_util;
 mod icons;
 mod logger;
+mod serde_util;
 
 use crate::deck::Deck;
 use crate::logger::Logger;
