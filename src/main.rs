@@ -6,12 +6,10 @@ mod icons;
 mod logger;
 mod serde_util;
 
-use std::any::Any;
-
 use crate::deck::Deck;
 use crate::logger::Logger;
 use eframe::{run_native, App, CreationContext, Frame, NativeOptions};
-use egui::{Button, Context, Label, Widget};
+use egui::Context;
 
 pub enum State {
     HOMESCREEN,
@@ -56,27 +54,11 @@ impl App for Manki {
     }
 }
 
-fn main() {
-    let mut v: Vec<Box<dyn Any>> = Vec::new();
-
-    v.push(Box::new(Label::new("Hello World!")));
-    v.push(Box::new(Button::new("LOl")));
-
-    for widget in v {
-        let down = widget.downcast_ref::<Label>();
-
-        if down.is_some() {
-            let u = down.unwrap();
-            println!("This is a Label and it says {}", u.text());
-        }
-    }
-
-    /*
+fn main() -> Result<(), eframe::Error> {
     let native_options = NativeOptions::default();
     run_native(
         "Manki",
         native_options,
         Box::new(|cc| Box::new(Manki::default(cc))),
     )
-        */
 }
