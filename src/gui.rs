@@ -1,7 +1,6 @@
 use crate::{
     deck::Evaluation,
     file_manager::{decks_directory, list_files},
-    gui_util::DeckButton,
     Deck, Manki, State,
 };
 use eframe::egui::{Button, CentralPanel, Context};
@@ -24,15 +23,21 @@ pub(crate) fn render_homescreen(ctx: &Context, app: &mut Manki) {
             Err(_) => Vec::new(),
         };
 
-        let decks: Vec<DeckButton> = DeckButton::paths_to_buttons(files);
+        let decks: Vec<Deck> = files
+            .iter()
+            .map(|path| Deck::read_from(path).unwrap())
+            .collect();
 
         ScrollArea::vertical()
             .scroll_bar_visibility(egui::scroll_area::ScrollBarVisibility::AlwaysHidden)
             .show(ui, |ui| {
                 for deck in decks {
                     ui.horizontal(|ui| {
-                        if ui.add_sized([app.window_width, 5.], deck.button).clicked() {
-                            app.curr_deck = Deck::read_from(&deck.path).unwrap();
+                        if ui
+                            .add_sized([app.window_width, 5.], Button::new(deck.title))
+                            .clicked()
+                        {
+                            app.curr_deck = deck;
                             app.curr_deck.sort();
                             app.state = State::STUDYSCREEN;
                         }

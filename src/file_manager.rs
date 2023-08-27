@@ -42,12 +42,3 @@ pub(crate) fn list_files(directory_path: PathBuf) -> Result<Vec<PathBuf>, Box<dy
     }
     return Ok(files);
 }
-
-pub(crate) fn file_name(path: &PathBuf) -> Box<&str> {
-    Box::new(
-        path.file_stem()
-            .unwrap_or(OsStr::new("Invalid File Format"))
-            .to_str()
-            .unwrap_or("Invalid File Name"),
-    )
-}
