@@ -42,6 +42,5 @@ where
             }
         }
     }
-
     map.end()
 }

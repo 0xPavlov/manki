@@ -1,7 +1,7 @@
 .PHONY: build run
 
 build:
-	cargo build
+	cargo build --release
 
 run:
-	cargo run
+	cargo run --release
