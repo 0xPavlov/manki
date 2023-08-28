@@ -1,9 +1,11 @@
 use crate::file_manager;
 use crate::gui_util::WidgetWrapper;
-use crate::serde_util::{deserialize_naive_datetime, serialize_naive_datetime, serialize_widgets};
+use crate::serde_util::{
+    deserialize_naive_datetime, deserialize_widgets, serialize_naive_datetime, serialize_widgets,
+};
 use chrono::{Local, NaiveDateTime};
+use egui::Label;
 use serde::{Deserialize, Serialize};
-use std::any::Any;
 use std::error::Error;
 use std::fs::File;
 use std::io::{Read, Write};
@@ -27,10 +29,16 @@ pub struct Card {
     front_heading: String,
     back_heading: String,
 
-    #[serde(serialize_with = "serialize_widgets")]
+    #[serde(
+        serialize_with = "serialize_widgets",
+        deserialize_with = "deserialize_widgets"
+    )]
     front_body: Vec<WidgetWrapper>,
 
-    #[serde(serialize_with = "serialize_widgets")]
+    #[serde(
+        serialize_with = "serialize_widgets",
+        deserialize_with = "deserialize_widgets"
+    )]
     back_body: Vec<WidgetWrapper>,
 
     flipped: bool,
@@ -40,6 +48,17 @@ pub struct Card {
 }
 
 impl Card {
+    pub(crate) fn new() -> Self {
+        Card {
+            front_heading: String::from(""),
+            back_heading: String::from(""),
+            front_body: vec![WidgetWrapper::Label(Label::new("TEST"))],
+            back_body: vec![WidgetWrapper::Label(Label::new("TEST"))],
+            flipped: false,
+            last_eval: Evaluation::VeryBad,
+        }
+    }
+
     pub(crate) fn display_text(&self) -> (&String, &String) {
         if self.flipped {
             return (&self.back_heading, &self.back_heading);
@@ -67,7 +86,7 @@ pub(crate) struct Deck {
     )]
     last_studied: NaiveDateTime,
 
-    cards: Vec<Card>,
+    pub cards: Vec<Card>,
 }
 
 impl Deck {

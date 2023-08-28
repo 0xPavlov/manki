@@ -44,3 +44,12 @@ where
     }
     map.end()
 }
+
+pub(crate) fn deserialize_widgets<'de, D>(deserializer: D) -> Result<Vec<WidgetWrapper>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let widgets: Vec<WidgetWrapper> = Vec::new();
+
+    Ok(widgets)
+}

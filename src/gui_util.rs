@@ -1,7 +1,7 @@
 use egui::{Image, Label};
 use std::path::PathBuf;
 
-struct ImageWrapper {
+pub struct ImageWrapper {
     pub path: PathBuf,
     pub image: Image,
 }

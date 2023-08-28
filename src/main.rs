@@ -8,6 +8,7 @@ mod serde_util;
 
 use crate::deck::Deck;
 use crate::logger::Logger;
+use deck::Card;
 use eframe::{run_native, App, CreationContext, Frame, NativeOptions};
 use egui::Context;
 
@@ -23,7 +24,7 @@ struct Manki {
     index: usize,
     window_width: f32,
     window_height: f32,
-    _logger: Logger,
+    logger: Logger,
 }
 
 impl Manki {
@@ -34,7 +35,7 @@ impl Manki {
             index: 0,
             window_height: 0.,
             window_width: 0.,
-            _logger: Logger::new(),
+            logger: Logger::new(),
         };
     }
 }

@@ -20,7 +20,10 @@ pub(crate) fn render_homescreen(ctx: &Context, app: &mut Manki) {
     CentralPanel::default().show(ctx, |ui| {
         let files = match list_files(decks_directory()) {
             Ok(f) => f,
-            Err(_) => Vec::new(),
+            Err(e) => {
+                app.logger.log_error(e.to_string());
+                Vec::new()
+            }
         };
 
         let decks: Vec<Deck> = files
@@ -34,7 +37,7 @@ pub(crate) fn render_homescreen(ctx: &Context, app: &mut Manki) {
                 for deck in decks {
                     ui.horizontal(|ui| {
                         if ui
-                            .add_sized([app.window_width, 5.], Button::new(deck.title))
+                            .add_sized([app.window_width, 5.], Button::new(&deck.title))
                             .clicked()
                         {
                             app.curr_deck = deck;
