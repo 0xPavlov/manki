@@ -4,7 +4,7 @@ use crate::serde_util::{
     deserialize_naive_datetime, deserialize_widgets, serialize_naive_datetime, serialize_widgets,
 };
 use chrono::{Local, NaiveDateTime};
-use egui::Label;
+use egui::{Label, Widget};
 use serde::{Deserialize, Serialize};
 use std::error::Error;
 use std::fs::File;
@@ -57,6 +57,28 @@ impl Card {
             flipped: false,
             last_eval: Evaluation::VeryBad,
         }
+    }
+
+    pub(crate) fn heading(&self) -> Label {
+        if self.flipped {
+            return Label::new(&self.back_heading);
+        }
+        Label::new(&self.front_heading)
+    }
+
+    pub(crate) fn body(&self) -> Vec<&dyn Widget> {
+        if self.flipped {
+            return self
+                .back_body
+                .iter()
+                .map(|wrapper| wrapper.unwrap())
+                .collect();
+        }
+        return self
+            .front_body
+            .iter()
+            .map(|wrapper| wrapper.unwrap())
+            .collect();
     }
 
     pub(crate) fn display_text(&self) -> (&String, &String) {

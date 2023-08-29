@@ -28,7 +28,14 @@ pub(crate) fn render_homescreen(ctx: &Context, app: &mut Manki) {
 
         let decks: Vec<Deck> = files
             .iter()
-            .map(|path| Deck::read_from(path).unwrap())
+            .map(|path| match Deck::read_from(path) {
+                Ok(deck) => deck,
+                Err(err) => {
+                    app.logger.log_error(err.to_string());
+
+                    Deck::empty("Failed to Load Deck")
+                }
+            })
             .collect();
 
         ScrollArea::vertical()
