@@ -9,12 +9,14 @@ pub(crate) struct Logger {
 impl Logger {
     pub(crate) fn new() -> Logger {
         Logger {
-            log: File::open(file_manager::log_path()).unwrap(),
+            log: File::create(file_manager::log_path()).unwrap(),
         }
     }
 
     pub(crate) fn log_error(&mut self, error: String) {
-        let _ = self.log.write_all(format!("ERROR: {}", error).as_bytes());
+        self.log
+            .write_all(format!("ERROR: {}\n", error).as_bytes())
+            .unwrap();
     }
 
     pub(crate) fn _log_info(&mut self, info: String) {

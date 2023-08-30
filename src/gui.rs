@@ -34,9 +34,13 @@ pub(crate) fn render_homescreen(ctx: &Context, app: &mut Manki) {
             .map(|path| match Deck::read_from(path) {
                 Ok(deck) => deck,
                 Err(err) => {
-                    app.logger.log_error(err.to_string());
+                    app.logger.log_error(format!(
+                        "Deserialisation of Deck {} failed due to {}",
+                        path.to_str().unwrap(),
+                        err.to_string()
+                    ));
 
-                    Deck::empty("Failed to Load Deck")
+                    Deck::empty("Failed to deserialise Deck")
                 }
             })
             .collect();
@@ -69,7 +73,13 @@ pub(crate) fn render_studyscreen(ctx: &Context, app: &mut Manki) {
 
     if curr_card_opt.is_none() {
         app.index = 0;
-        let _ = app.curr_deck.save_to_json();
+        app.curr_deck.save_to_json().unwrap_or_else(|err| {
+            app.logger.log_error(format!(
+                "Saving Deck {} failed due to {}",
+                app.curr_deck.title,
+                err.to_string()
+            ));
+        });
         app.state = State::HOMESCREEN;
         return;
     }
@@ -97,7 +107,8 @@ pub(crate) fn render_studyscreen(ctx: &Context, app: &mut Manki) {
     });
 
     TopBottomPanel::bottom("bottom_panel").show(ctx, |ui| {
-        //horizontal centering is quite hard in egui so this is a workaround
+        //Padding is as follows
+        // 25% side padding - 2% item padding - 14% button width - 2% item padding...
 
         let width = app.window_width;
         let side_padding = 0.25 * width;
