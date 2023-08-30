@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 use crate::{
     deck::Evaluation,
     file_manager::{decks_directory, list_files},
@@ -102,66 +100,29 @@ pub(crate) fn render_studyscreen(ctx: &Context, app: &mut Manki) {
         //horizontal centering is quite hard in egui so this is a workaround
 
         let width = app.window_width;
-        let side_padding = 0.2 * width;
+        let side_padding = 0.25 * width;
         let item_padding = 0.02 * width;
-        let button_width = (0.50 * width) / 4.;
+        let button_width = (0.42 * width) / 3.;
         let button_height = 30.;
+        let evals = vec![Evaluation::Again, Evaluation::Hard, Evaluation::Easy];
 
         ui.horizontal(|ui| {
             // remove any preset padding
             ui.style_mut().spacing.item_spacing = Vec2::new(item_padding, 0.);
 
             ui.add_space(side_padding);
-            ui.add_sized([button_width, button_height], Button::new("Very Bad"));
-            ui.add_sized([button_width, button_height], Button::new("Very Bad"));
-            ui.add_sized([button_width, button_height], Button::new("Very Bad"));
-            ui.add_sized([button_width, button_height], Button::new("Very Bad"));
+
+            for eval in evals {
+                if ui
+                    .add_sized([button_width, button_height], Button::new(eval.to_string()))
+                    .clicked()
+                {
+                    curr_card.update_eval(eval);
+                    app.index += 1;
+                }
+            }
+
             ui.add_space(side_padding);
         });
-
-        /*
-
-        ui.columns(4, |columns| {
-            columns[0].vertical_centered(|ui| {
-                if ui
-                    .add_sized([button_width, button_height], Button::new("Very Bad"))
-                    .clicked()
-                {
-                    curr_card.update_eval(Evaluation::VeryBad);
-                    app.index += 1;
-                }
-            });
-
-            columns[1].vertical_centered(|ui| {
-                if ui
-                    .add_sized([button_width, button_height], Button::new("Bad"))
-                    .clicked()
-                {
-                    curr_card.update_eval(Evaluation::Bad);
-                    app.index += 1;
-                }
-            });
-
-            columns[2].vertical_centered(|ui| {
-                if ui
-                    .add_sized([button_width, button_height], Button::new("Good"))
-                    .clicked()
-                {
-                    curr_card.update_eval(Evaluation::Good);
-                    app.index += 1;
-                }
-            });
-
-            columns[3].vertical_centered(|ui| {
-                if ui
-                    .add_sized([button_width, button_height], Button::new("Very Good"))
-                    .clicked()
-                {
-                    curr_card.update_eval(Evaluation::VeryGood);
-                    app.index += 1;
-                }
-            });
-        });
-        */
     });
 }

@@ -11,14 +11,22 @@ use std::path::PathBuf;
 
 #[derive(Serialize, Deserialize, Clone, PartialEq, PartialOrd, Ord, Eq)]
 pub enum Evaluation {
-    #[serde(rename = "VeryGood")]
-    VeryGood = 4,
-    #[serde(rename = "Good")]
-    Good = 3,
-    #[serde(rename = "Bad")]
-    Bad = 2,
-    #[serde(rename = "VeryBad")]
-    VeryBad = 1,
+    #[serde(rename = "Easy")]
+    Easy = 3,
+    #[serde(rename = "Hard")]
+    Hard = 2,
+    #[serde(rename = "Again")]
+    Again = 1,
+}
+
+impl ToString for Evaluation {
+    fn to_string(&self) -> String {
+        match &self {
+            Self::Easy => String::from("Easy"),
+            Self::Hard => String::from("Hard"),
+            Self::Again => String::from("Again"),
+        }
+    }
 }
 
 #[derive(Serialize, Deserialize)]
@@ -34,6 +42,7 @@ pub struct Card {
     last_eval: Evaluation,
 }
 
+#[allow(dead_code)]
 impl Card {
     pub(crate) fn new(frt_head: String, bck_head: String) -> Self {
         Card {
@@ -42,7 +51,7 @@ impl Card {
             front_body: Vec::new(),
             back_body: Vec::new(),
             flipped: false,
-            last_eval: Evaluation::VeryBad,
+            last_eval: Evaluation::Again,
         }
     }
 
@@ -69,6 +78,7 @@ impl Card {
     }
 }
 
+#[allow(dead_code)]
 #[derive(Serialize, Deserialize)]
 pub(crate) struct Deck {
     pub title: String,
@@ -83,6 +93,7 @@ pub(crate) struct Deck {
     pub cards: Vec<Card>,
 }
 
+#[allow(dead_code)]
 impl Deck {
     pub(crate) fn empty(ttl: &str) -> Deck {
         return Deck {

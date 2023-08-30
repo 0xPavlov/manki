@@ -56,6 +56,16 @@ impl App for Manki {
 }
 
 fn main() -> Result<(), eframe::Error> {
+    let mut deck = Deck::empty("Test-Deck");
+
+    for i in 0..=5 {
+        deck.add(Card::new(
+            format!("Mock Question {}", i),
+            format!("Mock Answer {}", i),
+        ));
+    }
+    deck.save_to_json();
+
     let native_options = NativeOptions::default();
     run_native(
         "Manki",
