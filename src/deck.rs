@@ -1,10 +1,8 @@
 use crate::file_manager;
 use crate::gui_util::WidgetWrapper;
-use crate::serde_util::{
-    deserialize_naive_datetime, deserialize_widgets, serialize_naive_datetime, serialize_widgets,
-};
+use crate::serde_util::{deserialize_naive_datetime, serialize_naive_datetime};
 use chrono::{Local, NaiveDateTime};
-use egui::{Label, Widget};
+use egui::Label;
 use serde::{Deserialize, Serialize};
 use std::error::Error;
 use std::fs::File;
@@ -28,19 +26,8 @@ pub struct Card {
     // Headings are rendered at the top of the screen and are meant to be the field for the question
     front_heading: String,
     back_heading: String,
-
-    #[serde(
-        serialize_with = "serialize_widgets",
-        deserialize_with = "deserialize_widgets"
-    )]
     front_body: Vec<WidgetWrapper>,
-
-    #[serde(
-        serialize_with = "serialize_widgets",
-        deserialize_with = "deserialize_widgets"
-    )]
     back_body: Vec<WidgetWrapper>,
-
     flipped: bool,
 
     // Last Evaluation to determine the sorting for the next learning session
@@ -48,12 +35,12 @@ pub struct Card {
 }
 
 impl Card {
-    pub(crate) fn new() -> Self {
+    pub(crate) fn new(frt_head: String, bck_head: String) -> Self {
         Card {
-            front_heading: String::from(""),
-            back_heading: String::from(""),
-            front_body: vec![WidgetWrapper::Label(Label::new("TEST"))],
-            back_body: vec![WidgetWrapper::Label(Label::new("TEST"))],
+            front_heading: frt_head,
+            back_heading: bck_head,
+            front_body: Vec::new(),
+            back_body: Vec::new(),
             flipped: false,
             last_eval: Evaluation::VeryBad,
         }
@@ -66,26 +53,11 @@ impl Card {
         Label::new(&self.front_heading)
     }
 
-    pub(crate) fn body(&self) -> Vec<&dyn Widget> {
+    pub(crate) fn body(&self) -> &Vec<WidgetWrapper> {
         if self.flipped {
-            return self
-                .back_body
-                .iter()
-                .map(|wrapper| wrapper.unwrap())
-                .collect();
+            return &self.back_body;
         }
-        return self
-            .front_body
-            .iter()
-            .map(|wrapper| wrapper.unwrap())
-            .collect();
-    }
-
-    pub(crate) fn display_text(&self) -> (&String, &String) {
-        if self.flipped {
-            return (&self.back_heading, &self.back_heading);
-        }
-        return (&self.front_heading, &self.front_heading);
+        &self.front_body
     }
 
     pub(crate) fn flip(&mut self) {
@@ -149,5 +121,9 @@ impl Deck {
 
     pub(crate) fn get(&mut self, index: usize) -> Option<&mut Card> {
         self.cards.get_mut(index)
+    }
+
+    pub(crate) fn add(&mut self, card: Card) {
+        self.cards.push(card);
     }
 }

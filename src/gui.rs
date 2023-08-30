@@ -1,11 +1,12 @@
 use crate::{
     deck::Evaluation,
     file_manager::{decks_directory, list_files},
+    gui_util::WidgetWrapper,
     Deck, Manki, State,
 };
+use eframe::egui::TopBottomPanel;
 use eframe::egui::{Button, CentralPanel, Context};
-use eframe::egui::{RichText, TopBottomPanel};
-use egui::{Key, ScrollArea};
+use egui::{DragValue, Key, Label, ScrollArea};
 
 pub(crate) fn render_homescreen(ctx: &Context, app: &mut Manki) {
     TopBottomPanel::top("top_panel").show(ctx, |ui| {
@@ -78,26 +79,29 @@ pub(crate) fn render_studyscreen(ctx: &Context, app: &mut Manki) {
         }
     });
 
-    let content = curr_card.display_text();
-
     TopBottomPanel::top("top_panel").show(ctx, |ui| {
         ui.vertical_centered(|ui| {
-            ui.heading(RichText::new(content.0).size(30.));
+            ui.add(curr_card.heading());
         });
     });
 
     CentralPanel::default().show(ctx, |ui| {
-        ui.label(content.1);
+        for widget in curr_card.body() {
+            match widget {
+                WidgetWrapper::Label(label_text) => ui.add(Label::new(label_text)),
+                WidgetWrapper::Image(_image_path) => unimplemented!(),
+            };
+        }
     });
 
     TopBottomPanel::bottom("bottom_panel").show(ctx, |ui| {
         //horizontal centering is quite hard in egui so this is a workaround
 
         let width = app.window_width;
-        let padding = 5.;
+        let padding = 50.;
         let button_amount = 4.;
         let button_width = (width - (padding * (button_amount + 1.))) / button_amount;
-        let button_height = 50.;
+        let button_height = 30.;
 
         ui.columns(4, |columns| {
             columns[0].vertical_centered(|ui| {

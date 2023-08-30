@@ -1,7 +1,6 @@
 use dirs::home_dir;
 use serde::{Deserialize, Serialize};
 use std::error::Error;
-use std::ffi::OsStr;
 use std::fs::{self};
 use std::path::PathBuf;
 

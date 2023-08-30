@@ -1,7 +1,5 @@
 use chrono::NaiveDateTime;
-use serde::{ser::SerializeMap, Deserialize, Deserializer, Serializer};
-
-use crate::gui_util::WidgetWrapper;
+use serde::{Deserialize, Deserializer, Serializer};
 
 pub(crate) fn serialize_naive_datetime<S>(
     datetime: &NaiveDateTime,
@@ -21,35 +19,4 @@ where
     let datetime_str = String::deserialize(deserializer)?;
     return NaiveDateTime::parse_from_str(&datetime_str, "%Y-%m-%d %H:%M:%S")
         .map_err(serde::de::Error::custom);
-}
-
-pub(crate) fn serialize_widgets<S>(
-    widgets: &Vec<WidgetWrapper>,
-    serializer: S,
-) -> Result<S::Ok, S::Error>
-where
-    S: Serializer,
-{
-    let mut map = serializer.serialize_map(Some(widgets.len()))?;
-
-    for widget in widgets {
-        match widget {
-            WidgetWrapper::Label(label) => {
-                map.serialize_entry("Label", label.text())?;
-            }
-            WidgetWrapper::Image(image) => {
-                map.serialize_entry("Image", &image.path)?;
-            }
-        }
-    }
-    map.end()
-}
-
-pub(crate) fn deserialize_widgets<'de, D>(deserializer: D) -> Result<Vec<WidgetWrapper>, D::Error>
-where
-    D: Deserializer<'de>,
-{
-    let widgets: Vec<WidgetWrapper> = Vec::new();
-
-    Ok(widgets)
 }
