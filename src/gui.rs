@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use crate::{
     deck::Evaluation,
     file_manager::{decks_directory, list_files},
@@ -6,15 +8,17 @@ use crate::{
 };
 use eframe::egui::TopBottomPanel;
 use eframe::egui::{Button, CentralPanel, Context};
-use egui::{DragValue, Key, Label, ScrollArea};
+use egui::{Align, Key, Label, Layout, ScrollArea, Vec2};
 
 pub(crate) fn render_homescreen(ctx: &Context, app: &mut Manki) {
     TopBottomPanel::top("top_panel").show(ctx, |ui| {
-        ui.horizontal(|ui| {
+        ui.with_layout(Layout::left_to_right(Align::TOP), |ui| {
             if ui.button("New Deck").clicked() {
                 app.state = State::EDITSCREEN;
                 app.curr_deck = Deck::empty("");
             }
+
+            if ui.button("Settings").clicked() {}
         });
     });
 
@@ -98,10 +102,24 @@ pub(crate) fn render_studyscreen(ctx: &Context, app: &mut Manki) {
         //horizontal centering is quite hard in egui so this is a workaround
 
         let width = app.window_width;
-        let padding = 50.;
-        let button_amount = 4.;
-        let button_width = (width - (padding * (button_amount + 1.))) / button_amount;
+        let side_padding = 0.2 * width;
+        let item_padding = 0.02 * width;
+        let button_width = (0.50 * width) / 4.;
         let button_height = 30.;
+
+        ui.horizontal(|ui| {
+            // remove any preset padding
+            ui.style_mut().spacing.item_spacing = Vec2::new(item_padding, 0.);
+
+            ui.add_space(side_padding);
+            ui.add_sized([button_width, button_height], Button::new("Very Bad"));
+            ui.add_sized([button_width, button_height], Button::new("Very Bad"));
+            ui.add_sized([button_width, button_height], Button::new("Very Bad"));
+            ui.add_sized([button_width, button_height], Button::new("Very Bad"));
+            ui.add_space(side_padding);
+        });
+
+        /*
 
         ui.columns(4, |columns| {
             columns[0].vertical_centered(|ui| {
@@ -144,5 +162,6 @@ pub(crate) fn render_studyscreen(ctx: &Context, app: &mut Manki) {
                 }
             });
         });
+        */
     });
 }
