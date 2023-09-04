@@ -2,7 +2,7 @@ use crate::file_manager;
 use crate::gui_util::WidgetWrapper;
 use crate::serde_util::{deserialize_naive_datetime, serialize_naive_datetime};
 use chrono::{Local, NaiveDateTime};
-use egui::Label;
+use egui::RichText;
 use serde::{Deserialize, Serialize};
 use std::error::Error;
 use std::fs::File;
@@ -29,7 +29,7 @@ impl ToString for Evaluation {
     }
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct Card {
     // Headings are rendered at the top of the screen and are meant to be the field for the question
     front_heading: String,
@@ -55,11 +55,11 @@ impl Card {
         }
     }
 
-    pub(crate) fn heading(&self) -> Label {
+    pub(crate) fn heading(&self) -> RichText {
         if self.flipped {
-            return Label::new(&self.back_heading);
+            return RichText::new(&self.back_heading).heading();
         }
-        Label::new(&self.front_heading)
+        RichText::new(&self.front_heading).heading()
     }
 
     pub(crate) fn body(&self) -> &Vec<WidgetWrapper> {
@@ -79,10 +79,11 @@ impl Card {
 }
 
 #[allow(dead_code)]
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub(crate) struct Deck {
     pub title: String,
     pub category: String,
+    pub deserialize_failed: bool,
 
     #[serde(
         serialize_with = "serialize_naive_datetime",
@@ -101,11 +102,23 @@ impl Deck {
             category: "None".to_string(),
             last_studied: Local::now().naive_local(),
             cards: Vec::new(),
+            deserialize_failed: false,
         };
     }
 
+    pub(crate) fn as_unserializable(self) -> Deck {
+        let mut deck = self.clone();
+        deck.deserialize_failed = true;
+        deck
+    }
+
     pub(crate) fn save_to_json(&mut self) -> Result<(), Box<dyn Error>> {
-        // TODO: This file path is kinda ugly ngl
+        if self.deserialize_failed {
+            // Ok is returned here instead of Error, to indicate the succesful capture of
+            // unserealizable decks
+            return Ok(());
+        }
+
         let file_path = format!(
             "{}/{}.json",
             file_manager::decks_directory().to_str().unwrap(),

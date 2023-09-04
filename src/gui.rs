@@ -11,12 +11,7 @@ use egui::{Align, Key, Label, Layout, ScrollArea, Vec2};
 pub(crate) fn render_homescreen(ctx: &Context, app: &mut Manki) {
     TopBottomPanel::top("top_panel").show(ctx, |ui| {
         ui.with_layout(Layout::left_to_right(Align::TOP), |ui| {
-            if ui.button("New Deck").clicked() {
-                app.state = State::EDITSCREEN;
-                app.curr_deck = Deck::empty("");
-            }
-
-            if ui.button("Settings").clicked() {}
+            ui.heading("Lorem ipsum dolor sit amet, qui minim labore adipisicing minim sint cillum sint consectetur cupidatat.");
         });
     });
 
@@ -40,7 +35,7 @@ pub(crate) fn render_homescreen(ctx: &Context, app: &mut Manki) {
                         err.to_string()
                     ));
 
-                    Deck::empty("Failed to deserialise Deck")
+                    Deck::empty("Failed to deserialise Deck").as_unserializable()
                 }
             })
             .collect();
@@ -93,7 +88,7 @@ pub(crate) fn render_studyscreen(ctx: &Context, app: &mut Manki) {
 
     TopBottomPanel::top("top_panel").show(ctx, |ui| {
         ui.vertical_centered(|ui| {
-            ui.add(curr_card.heading());
+            ui.label(curr_card.heading());
         });
     });
 
