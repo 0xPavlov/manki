@@ -12,3 +12,4 @@ dirs = "3.0"
 chrono = "0.4.26"
 serde_json = "1.0.104"
 serde = { version = "1.0.104", features = ["derive"] }
+image = "0.24.7"

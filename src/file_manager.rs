@@ -1,4 +1,7 @@
 use dirs::home_dir;
+use egui::ColorImage;
+use image::io::Reader as ImageReader;
+use image::ImageError;
 use serde::{Deserialize, Serialize};
 use std::error::Error;
 use std::fs::{self};
@@ -40,4 +43,13 @@ pub(crate) fn list_files(directory_path: PathBuf) -> Result<Vec<PathBuf>, Box<dy
         }
     }
     return Ok(files);
+}
+
+#[allow(dead_code)]
+pub(crate) fn load_image_from_path(path: PathBuf) -> Result<ColorImage, ImageError> {
+    let image = ImageReader::open(path)?.decode()?;
+    let size = [image.width() as _, image.height() as _];
+    let image_buffer = image.to_rgba8();
+    let pixels = image_buffer.as_flat_samples();
+    Ok(ColorImage::from_rgba_unmultiplied(size, pixels.as_slice()))
 }
