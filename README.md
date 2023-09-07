@@ -1,6 +1,9 @@
 # Manki
 
-Manki (short for "My Anki") is an Anki clone, written in Rust. Currently still WIP.
+Manki (short for "My Anki") is an Anki clone, written in Rust using egui.
+
+> [!Warning]
+> This project is incomplete and in active development.
 
 ### Contributing
 
