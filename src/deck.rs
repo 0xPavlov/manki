@@ -1,12 +1,11 @@
-use crate::file_manager;
 use crate::gui_util::WidgetWrapper;
+use crate::io_manager::write_string_to_file;
 use crate::serde_util::{deserialize_naive_datetime, serialize_naive_datetime};
 use chrono::{Local, NaiveDateTime};
 use egui::RichText;
 use serde::{Deserialize, Serialize};
 use std::error::Error;
-use std::fs::File;
-use std::io::{Read, Write};
+use std::fs;
 use std::path::PathBuf;
 
 #[derive(Serialize, Deserialize, Clone, PartialEq, PartialOrd, Ord, Eq)]
@@ -112,30 +111,20 @@ impl Deck {
         deck
     }
 
-    pub(crate) fn save_to_json(&mut self) -> Result<(), Box<dyn Error>> {
+    pub(crate) fn save_to_json(&mut self, path: PathBuf) -> Result<(), Box<dyn Error>> {
         if self.deserialize_failed {
             // Ok is returned here instead of Error, to indicate the succesful capture of
             // unserealizable decks
             return Ok(());
         }
 
-        let file_path = format!(
-            "{}/{}.json",
-            file_manager::decks_directory().to_str().unwrap(),
-            self.title
-        );
+        let file_path = path.join(format!("{}.json", self.title));
         self.last_studied = Local::now().naive_local();
-        let serialized_deck = serde_json::to_string(self)?;
-        let mut file = File::create(file_path)?;
-        file.write_all(serialized_deck.as_bytes())?;
-        Ok(())
+        write_string_to_file(file_path, serde_json::to_string(self)?)
     }
 
     pub(crate) fn read_from(path: &PathBuf) -> Result<Deck, Box<dyn Error>> {
-        let mut file = File::open(path)?;
-        let mut file_contents = String::new();
-        file.read_to_string(&mut file_contents)?;
-
+        let file_contents = fs::read_to_string(path)?;
         Ok(serde_json::from_str(&file_contents.as_str())?)
     }
 

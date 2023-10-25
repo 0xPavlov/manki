@@ -1,12 +1,10 @@
+use crate::settings::Settings;
 use crate::{
-    deck::Evaluation,
-    file_manager::{decks_directory, list_files},
-    gui_util::WidgetWrapper,
-    Deck, Manki, State,
+    deck::Evaluation, gui_util::WidgetWrapper, io_manager::list_files, Deck, Manki, State,
 };
 use eframe::egui::TopBottomPanel;
 use eframe::egui::{Button, CentralPanel, Context};
-use egui::{Align, Key, Label, Layout, ScrollArea, Vec2};
+use egui::{Align, Image, Key, Label, Layout, ScrollArea, Vec2};
 
 pub(crate) fn render_homescreen(ctx: &Context, app: &mut Manki) {
     TopBottomPanel::top("top_panel").show(ctx, |ui| {
@@ -16,10 +14,10 @@ pub(crate) fn render_homescreen(ctx: &Context, app: &mut Manki) {
     });
 
     CentralPanel::default().show(ctx, |ui| {
-        let files = match list_files(decks_directory()) {
+        let files = match list_files(app.settings.decks_directory()) {
             Ok(f) => f,
-            Err(e) => {
-                app.logger.log_error(e.to_string());
+            Err(err) => {
+                eprintln!("{}", err.to_string());
                 Vec::new()
             }
         };
@@ -29,11 +27,14 @@ pub(crate) fn render_homescreen(ctx: &Context, app: &mut Manki) {
             .map(|path| match Deck::read_from(path) {
                 Ok(deck) => deck,
                 Err(err) => {
-                    app.logger.log_error(format!(
-                        "Deserialisation of Deck {} failed due to {}",
-                        path.to_str().unwrap(),
-                        err.to_string()
-                    ));
+                    eprintln!(
+                        "{}",
+                        format!(
+                            "Deserialisation of Deck {} failed due to {}",
+                            path.to_str().unwrap(),
+                            err.to_string()
+                        )
+                    );
 
                     Deck::empty("Failed to deserialise Deck").as_unserializable()
                 }
@@ -68,13 +69,18 @@ pub(crate) fn render_studyscreen(ctx: &Context, app: &mut Manki) {
 
     if curr_card_opt.is_none() {
         app.index = 0;
-        app.curr_deck.save_to_json().unwrap_or_else(|err| {
-            app.logger.log_error(format!(
-                "Saving Deck {} failed due to {}",
-                app.curr_deck.title,
-                err.to_string()
-            ));
-        });
+        app.curr_deck
+            .save_to_json(app.settings.decks_directory())
+            .unwrap_or_else(|err| {
+                eprintln!(
+                    "{}",
+                    format!(
+                        "Saving Deck {} failed due to {}",
+                        app.curr_deck.title,
+                        err.to_string()
+                    )
+                );
+            });
         app.state = State::HOMESCREEN;
         return;
     }
@@ -96,7 +102,7 @@ pub(crate) fn render_studyscreen(ctx: &Context, app: &mut Manki) {
         for widget in curr_card.body() {
             match widget {
                 WidgetWrapper::Label(label_text) => ui.add(Label::new(label_text)),
-                WidgetWrapper::Image(_image_path) => unimplemented!(),
+                WidgetWrapper::Image(image_path) => ui.add(Image::new(image_path)),
             };
         }
     });
@@ -130,5 +136,28 @@ pub(crate) fn render_studyscreen(ctx: &Context, app: &mut Manki) {
 
             ui.add_space(side_padding);
         });
+    });
+}
+
+pub(crate) fn render_installation_wizard(ctx: &Context, app: &mut Manki) {
+    TopBottomPanel::top("top_panel").show(ctx, |ui| {
+        ui.heading("Manki Installation-Wizard");
+    });
+
+    CentralPanel::default().show(ctx, |ui| {
+        ui.label("Please enter the absolute path to the directory Manki should store its data at");
+        ui.text_edit_singleline(&mut app.settings.app_directory);
+    });
+
+    TopBottomPanel::bottom("bottom_panel").show(ctx, |ui| {
+        ui.with_layout(
+            Layout::centered_and_justified(egui::Direction::TopDown),
+            |ui| {
+                if ui.button("Done").clicked() {
+                    Settings::register_preferences(&app.settings.app_directory).unwrap();
+                    app.state = State::HOMESCREEN;
+                }
+            },
+        );
     });
 }

@@ -1,42 +1,56 @@
 mod deck;
-mod file_manager;
 mod gui;
 mod gui_util;
-mod icons;
+mod io_manager;
 mod logger;
 mod serde_util;
+mod settings;
 
 use crate::deck::Deck;
-use crate::logger::Logger;
-use deck::Card;
+use crate::settings::Settings;
 use eframe::{run_native, App, CreationContext, Frame, NativeOptions};
 use egui::Context;
+use io_manager::check_for_preferences;
 
 pub enum State {
     HOMESCREEN,
     STUDYSCREEN,
     EDITSCREEN,
+    INSTALLATION,
 }
 
 struct Manki {
-    state: State,
+    pub(crate) state: State,
     curr_deck: Deck, //current deck, either the one currently being studied, edited or created
     index: usize,
+
     window_width: f32,
     window_height: f32,
-    logger: Logger,
+    pub(crate) settings: Settings,
 }
 
 impl Manki {
     fn default(_cc: &CreationContext<'_>) -> Manki {
-        return Manki {
-            state: State::HOMESCREEN,
-            curr_deck: Deck::empty("Empty"),
+        let mut app = Manki {
+            state: State::INSTALLATION,
+            curr_deck: Deck::empty("Empty").as_unserializable(),
             index: 0,
             window_height: 0.,
             window_width: 0.,
-            logger: Logger::new(),
+            settings: Settings::new(),
         };
+
+        match check_for_preferences() {
+            Ok(entry) => {
+                app.settings.app_directory = entry.app_path;
+                app.settings
+                    .save_json_to_file(app.settings.app_directory())
+                    .unwrap();
+                app.state = State::HOMESCREEN;
+            }
+            Err(_) => {}
+        }
+        app
     }
 }
 
@@ -51,21 +65,12 @@ impl App for Manki {
             State::HOMESCREEN => gui::render_homescreen(ctx, self),
             State::STUDYSCREEN => gui::render_studyscreen(ctx, self),
             State::EDITSCREEN => {}
+            State::INSTALLATION => gui::render_installation_wizard(ctx, self),
         }
     }
 }
 
 fn main() -> Result<(), eframe::Error> {
-    let mut deck = Deck::empty("Test-Deck");
-
-    for i in 0..=5 {
-        deck.add(Card::new(
-            format!("Mock Question {}", i),
-            format!("Mock Answer {}", i),
-        ));
-    }
-    deck.save_to_json();
-
     let native_options = NativeOptions::default();
     run_native(
         "Manki",
