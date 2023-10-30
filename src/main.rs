@@ -2,7 +2,6 @@ mod deck;
 mod gui;
 mod gui_util;
 mod io_manager;
-mod logger;
 mod serde_util;
 mod settings;
 
@@ -51,6 +50,21 @@ impl Manki {
             Err(_) => {}
         }
         app
+    }
+
+    fn reset(&mut self) {
+        match self.state {
+            State::STUDYSCREEN => {
+                self.index = 0;
+                self.curr_deck
+                    .save_to_json(self.settings.decks_directory())
+                    .unwrap_or_else(|err| {});
+                self.state = State::HOMESCREEN;
+            }
+            _ => {
+                unimplemented!("Lol")
+            }
+        }
     }
 }
 

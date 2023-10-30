@@ -1,3 +1,5 @@
+use std::ffi::OsStr;
+
 use crate::settings::Settings;
 use crate::{
     deck::Evaluation, gui_util::WidgetWrapper, io_manager::list_files, Deck, Manki, State,
@@ -26,17 +28,14 @@ pub(crate) fn render_homescreen(ctx: &Context, app: &mut Manki) {
             .iter()
             .map(|path| match Deck::read_from(path) {
                 Ok(deck) => deck,
-                Err(err) => {
-                    eprintln!(
-                        "{}",
-                        format!(
-                            "Deserialisation of Deck {} failed due to {}",
-                            path.to_str().unwrap(),
-                            err.to_string()
-                        )
-                    );
-
-                    Deck::empty("Failed to deserialise Deck").as_unserializable()
+                Err(_) => {
+                    let deck_name = path
+                        .file_stem()
+                        .unwrap_or(OsStr::new("Unnamed File"))
+                        .to_str()
+                        .unwrap();
+                    Deck::empty(format!("Failed to deserialize {}", deck_name).as_str())
+                        .as_unserializable()
                 }
             })
             .collect();
@@ -65,26 +64,13 @@ pub(crate) fn render_homescreen(ctx: &Context, app: &mut Manki) {
 }
 
 pub(crate) fn render_studyscreen(ctx: &Context, app: &mut Manki) {
-    let curr_card_opt = app.curr_deck.get(app.index);
-
-    if curr_card_opt.is_none() {
-        app.index = 0;
-        app.curr_deck
-            .save_to_json(app.settings.decks_directory())
-            .unwrap_or_else(|err| {
-                eprintln!(
-                    "{}",
-                    format!(
-                        "Saving Deck {} failed due to {}",
-                        app.curr_deck.title,
-                        err.to_string()
-                    )
-                );
-            });
-        app.state = State::HOMESCREEN;
-        return;
-    }
-    let curr_card = curr_card_opt.unwrap();
+    let curr_card = match app.curr_deck.get(app.index) {
+        Some(card) => card,
+        None => {
+            app.reset();
+            return;
+        }
+    };
 
     ctx.input(|input| {
         if input.key_pressed(Key::Space) {
@@ -103,6 +89,7 @@ pub(crate) fn render_studyscreen(ctx: &Context, app: &mut Manki) {
             match widget {
                 WidgetWrapper::Label(label_text) => ui.add(Label::new(label_text)),
                 WidgetWrapper::Image(image_path) => ui.add(Image::new(image_path)),
+                WidgetWrapper::Latex(_) => unimplemented!(),
             };
         }
     });
