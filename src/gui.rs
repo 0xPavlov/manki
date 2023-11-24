@@ -1,12 +1,18 @@
-use std::ffi::OsStr;
-
 use crate::settings::Settings;
-use crate::{
-    deck::Evaluation, gui_util::WidgetWrapper, io_manager::list_files, Deck, Manki, State,
-};
+use crate::{deck::Evaluation, io_manager::list_files, Deck, Manki, State};
 use eframe::egui::TopBottomPanel;
 use eframe::egui::{Button, CentralPanel, Context};
 use egui::{Align, Image, Key, Label, Layout, ScrollArea, Vec2};
+
+use serde::{Deserialize, Serialize};
+
+// All the Widgets that are usable in Manki
+#[derive(Serialize, Deserialize, Clone)]
+pub enum WidgetWrapper {
+    Label(String),
+    Image(String),
+    Latex(String),
+}
 
 pub(crate) fn render_homescreen(ctx: &Context, app: &mut Manki) {
     TopBottomPanel::top("top_panel").show(ctx, |ui| {
@@ -26,18 +32,7 @@ pub(crate) fn render_homescreen(ctx: &Context, app: &mut Manki) {
 
         let decks: Vec<Deck> = files
             .iter()
-            .map(|path| match Deck::read_from(path) {
-                Ok(deck) => deck,
-                Err(_) => {
-                    let deck_name = path
-                        .file_stem()
-                        .unwrap_or(OsStr::new("Unnamed File"))
-                        .to_str()
-                        .unwrap();
-                    Deck::empty(format!("Failed to deserialize {}", deck_name).as_str())
-                        .as_unserializable()
-                }
-            })
+            .filter_map(|path| Deck::try_from(path.to_owned()).ok())
             .collect();
 
         ScrollArea::vertical()
@@ -46,7 +41,7 @@ pub(crate) fn render_homescreen(ctx: &Context, app: &mut Manki) {
                 for deck in decks {
                     ui.horizontal(|ui| {
                         if ui
-                            .add_sized([app.window_width, 5.], Button::new(&deck.title))
+                            .add_sized([app.window_width - 10., 5.], Button::new(&deck.title))
                             .clicked()
                         {
                             app.curr_deck = deck;

@@ -1,6 +1,5 @@
 mod deck;
 mod gui;
-mod gui_util;
 mod io_manager;
 mod serde_util;
 mod settings;

@@ -1,4 +1,4 @@
-use crate::gui_util::WidgetWrapper;
+use crate::gui::WidgetWrapper;
 use crate::io_manager::write_string_to_file;
 use crate::serde_util::{deserialize_naive_datetime, serialize_naive_datetime};
 use chrono::{Local, NaiveDateTime};
@@ -93,6 +93,15 @@ pub(crate) struct Deck {
     pub cards: Vec<Card>,
 }
 
+impl TryFrom<PathBuf> for Deck {
+    type Error = Box<dyn Error>;
+
+    fn try_from(path: PathBuf) -> Result<Self, Self::Error> {
+        let file_contents = fs::read_to_string(path)?;
+        Ok(serde_json::from_str(&file_contents.as_str())?)
+    }
+}
+
 #[allow(dead_code)]
 impl Deck {
     pub(crate) fn empty(ttl: &str) -> Deck {
@@ -121,11 +130,6 @@ impl Deck {
         let file_path = path.join(format!("{}.json", self.title));
         self.last_studied = Local::now().naive_local();
         write_string_to_file(file_path, serde_json::to_string(self)?)
-    }
-
-    pub(crate) fn read_from(path: &PathBuf) -> Result<Deck, Box<dyn Error>> {
-        let file_contents = fs::read_to_string(path)?;
-        Ok(serde_json::from_str(&file_contents.as_str())?)
     }
 
     pub(crate) fn sort(&mut self) {
